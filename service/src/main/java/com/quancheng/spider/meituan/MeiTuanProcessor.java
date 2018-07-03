@@ -11,14 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.pipeline.CollectorPipeline;
-import us.codecraft.webmagic.pipeline.ResultItemsCollectorPipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,8 +29,6 @@ import static java.util.regex.Pattern.compile;
 @Component
 public class MeiTuanProcessor implements PageProcessor, Task {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private static final String DATA_KEY = "POIINFOLIST";
-
     @Autowired
     private PoiInfoMapper poiInfoMapper;
 
@@ -56,28 +50,34 @@ public class MeiTuanProcessor implements PageProcessor, Task {
                 if (StringUtils.isNotEmpty(data)) {
                     JSONObject jsonObject = JSON.parseObject(data);
                     JSONObject poiLists = jsonObject.getJSONObject("poiLists");
-                    JSONArray poiInfos = poiLists.getJSONArray("poiInfos");
-                    List<PoiInfo> poiInfoList = poiInfos.toJavaList(PoiInfo.class);
-                    page.putField(DATA_KEY, poiInfoList);
-
                     Integer totalCounts = poiLists.getInteger("totalCounts");
                     logger.info("Page url:{}, total size:{}", page.getUrl(), totalCounts);
-                    if (totalCounts > 0) {
-                        String pageUrl = page.getUrl().toString();
-                        pattern = compile("(\\d+)");
-                        matcher = pattern.matcher(pageUrl);
-                        if (matcher.find()) {
-                            String pageNum = matcher.group(1) == null ? "" : matcher.group(1);
-                            int pageIndex = Integer.valueOf(pageNum) + 1;
-                            pageUrl = matcher.replaceFirst(pageIndex + "");
-                            logger.info("Target url is:{}", pageUrl);
-                            page.addTargetRequest(pageUrl);
-                        }
+
+                    JSONArray poiInfos = poiLists.getJSONArray("poiInfos");
+                    if (null != totalCounts && totalCounts > 0 && poiInfos.size() > 0) {
+                        List<PoiInfo> poiInfoList = poiInfos.toJavaList(PoiInfo.class);
+                        poiInfoList.forEach(this::saveOrUpdate);
+                        nextTarget(page);
                     }
                 }
             }
         } catch (Exception e) {
             logger.error("Parse json failed>", e);
+        }
+    }
+
+    private void nextTarget(Page page) {
+        String pageUrl = page.getUrl().toString();
+        Pattern pattern = compile("(\\d+)");
+        Matcher matcher = pattern.matcher(pageUrl);
+        if (matcher.find()) {
+            String pageNum = matcher.group(1);
+            if (StringUtils.isNotEmpty(pageNum)) {
+                int pageIndex = Integer.valueOf(pageNum) + 1;
+                pageUrl = matcher.replaceFirst(pageIndex + "");
+                logger.info("Target url is:{}", pageUrl);
+                page.addTargetRequest(pageUrl);
+            }
         }
     }
 
@@ -91,19 +91,12 @@ public class MeiTuanProcessor implements PageProcessor, Task {
 
     @Override
     public void exec(Object param) {
-        CollectorPipeline<ResultItems> pipeline = new ResultItemsCollectorPipeline();
         List<String> urls = (List<String>) param;
         logger.info("tagert url list:{}", urls);
         Spider.create(new MeiTuanProcessor())
                 .startUrls(urls)
-                .addPipeline(pipeline)
                 .thread(5)
                 .run();
-        List<PoiInfo> result = new ArrayList<>();
-        List<ResultItems> resultItems = pipeline.getCollected();
-        resultItems.forEach(rs -> result.addAll(rs.get(DATA_KEY)));
-        logger.info("Get result list size:{}", result.size());
-        result.forEach(this::saveOrUpdate);
     }
 
     private void saveOrUpdate(PoiInfo rs) {

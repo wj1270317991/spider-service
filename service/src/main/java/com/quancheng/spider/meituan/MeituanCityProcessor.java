@@ -4,6 +4,7 @@ import com.quancheng.spider.core.Task;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Site;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-02
  **/
+@Component
 public class MeituanCityProcessor implements PageProcessor, Task {
     private static final String CITY_KEY = "citys";
 

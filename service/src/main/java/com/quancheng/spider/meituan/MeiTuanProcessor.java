@@ -10,6 +10,7 @@ import com.quancheng.spider.dataobject.PoiInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -27,6 +28,7 @@ import static java.util.regex.Pattern.compile;
  * @author: Robert
  * @create: 2018-06-26
  **/
+@Component
 public class MeiTuanProcessor implements PageProcessor, Task {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private PoiInfoMapper poiInfoMapper = (PoiInfoMapper) AppContextUtil.getBean("poiInfoMapper");

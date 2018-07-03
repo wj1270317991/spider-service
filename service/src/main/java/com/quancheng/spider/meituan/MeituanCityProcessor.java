@@ -1,10 +1,10 @@
 package com.quancheng.spider.meituan;
 
+import com.quancheng.spider.core.AppContextUtil;
 import com.quancheng.spider.core.Task;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.core.env.Environment;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Site;
@@ -23,13 +23,10 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-02
  **/
-@Component
 public class MeituanCityProcessor implements PageProcessor, Task {
+    private static final String CITYURL = "http://www.meituan.com/changecity/";
     private static final String CITY_KEY = "citys";
-
-    @Value("${meituan.city.url}")
-    private String cityUrl;
-    //private String cityUrl = "http://www.meituan.com/changecity/";
+    private Environment environment = (Environment) AppContextUtil.getBean("environment");
 
     @Override
     public void process(Page page) {
@@ -70,10 +67,11 @@ public class MeituanCityProcessor implements PageProcessor, Task {
             return;
         }
         List<String> list = (List<String>) param;
+        String cityUrl = environment.getProperty("meituan.city.url");
 
         CollectorPipeline<ResultItems> collectorPipeline = new ResultItemsCollectorPipeline();
         Spider.create(new MeituanCityProcessor())
-                .addUrl(this.cityUrl)
+                .addUrl(cityUrl)
                 .addPipeline(collectorPipeline)
                 .thread(5)
                 .run();

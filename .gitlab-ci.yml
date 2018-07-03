@@ -1,0 +1,18 @@
+stages:
+  - docker-build
+before_script:
+  - terraservice=registry.docker.quancheng-ec.com:5000/spider-service:`TZ=CST-8 date '+%Y%m%d-%H%M'`
+  - whoami
+build_images:
+   stage: docker-build
+   script:
+    - echo $image
+    - if [ "`docker images | awk '/^registry.docker.quancheng-ec.com:5000/ { print $3 }'`" ]; then docker rmi -f $(docker images | awk '/^registry.docker.quancheng-ec.com:5000/ { print $3 }' ); fi
+    - mvn clean install -U
+    - mvn deploy -N
+    - echo "Build Docker Image..."
+    - docker build --no-cache -t $terraservice .
+    - echo "Push Image:" $terraservice " to repository..."
+    - docker push $terraservice
+   only:
+    - master

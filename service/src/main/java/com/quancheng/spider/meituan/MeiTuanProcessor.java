@@ -3,18 +3,19 @@ package com.quancheng.spider.meituan;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.quancheng.spider.core.AppContextUtil;
+import com.quancheng.spider.core.Task;
 import com.quancheng.spider.dao.PoiInfoMapper;
 import com.quancheng.spider.dataobject.PoiInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +27,9 @@ import static java.util.regex.Pattern.compile;
  * @author: Robert
  * @create: 2018-06-26
  **/
-@Component
 public class MeiTuanProcessor implements PageProcessor, Task {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    @Autowired
-    private PoiInfoMapper poiInfoMapper;
+    private PoiInfoMapper poiInfoMapper = (PoiInfoMapper) AppContextUtil.getBean("poiInfoMapper");
 
     @Override
     public void process(Page page) {
@@ -45,7 +44,7 @@ public class MeiTuanProcessor implements PageProcessor, Task {
         try {
             Pattern pattern = compile("window._appState =(.*);</script>");
             Matcher matcher = pattern.matcher(page.getJson().toString());
-            while (matcher.find()) {
+            if (matcher.find()) {
                 String data = matcher.group(1);
                 if (StringUtils.isNotEmpty(data)) {
                     JSONObject jsonObject = JSON.parseObject(data);
@@ -105,5 +104,13 @@ public class MeiTuanProcessor implements PageProcessor, Task {
         } catch (Exception e) {
             logger.error("Save or update failed>", e);
         }
+    }
+
+    public static void main(String[] args) {
+        List<String> targetUrls = Arrays.asList(
+                    "http://as.meituan.com/meishi/pn1/",
+                    "http://anqing.meituan.com/meishi/pn1/");
+        Task task = new MeiTuanProcessor();
+        task.exec(targetUrls);
     }
 }

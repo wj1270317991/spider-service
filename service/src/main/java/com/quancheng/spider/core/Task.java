@@ -1,4 +1,4 @@
-package com.quancheng.spider.meituan;
+package com.quancheng.spider.core;
 
 import java.util.List;
 

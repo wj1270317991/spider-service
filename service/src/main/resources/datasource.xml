@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        ">
+
+    <bean name="datasource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" init-method="init" primary="true">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="url" value="${datasource.url}" />
+        <property name="username" value="${datasource.username}" />
+        <property name="password" value="${datasource.password}" />
+        <property name="filters" value="stat"/>
+        <property name="maxActive" value="20"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="1"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxOpenPreparedStatements" value="20"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" primary="true">
+        <property name="dataSource" ref="datasource" />
+        <property name="mapperLocations" value="classpath:/sqlmapper/*Mapper.xml" />
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <property name="typeAliasesPackage" value="com.quancheng.spider.dataobject" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" primary="true">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.quancheng.spider.dao" />
+    </bean>
+
+    <!-- 第二个数据源 不需要可以删除 -->
+
+    <!--<bean name="datasource2" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" init-method="init">-->
+        <!--<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />-->
+        <!--<property name="url" value="${datasource.datasource2.url}" />-->
+        <!--<property name="username" value="${datasource.datasource2.username}" />-->
+        <!--<property name="password" value="${datasource.datasource2.password}" />-->
+        <!--<property name="filters" value="stat"/>-->
+        <!--<property name="maxActive" value="20"/>-->
+        <!--<property name="initialSize" value="1"/>-->
+        <!--<property name="maxWait" value="60000"/>-->
+        <!--<property name="minIdle" value="1"/>-->
+        <!--<property name="timeBetweenEvictionRunsMillis" value="60000"/>-->
+        <!--<property name="minEvictableIdleTimeMillis" value="300000"/>-->
+        <!--<property name="testWhileIdle" value="true"/>-->
+        <!--<property name="testOnBorrow" value="false"/>-->
+        <!--<property name="testOnReturn" value="false"/>-->
+        <!--<property name="poolPreparedStatements" value="true"/>-->
+        <!--<property name="maxOpenPreparedStatements" value="20"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="sqlSessionFactory2" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+        <!--<property name="dataSource" ref="datasource2" />-->
+        <!--<property name="mapperLocations" value="classpath:/sqlmapper/datasource2/*Mapper.xml" />-->
+        <!--<property name="configLocation" value="classpath:mybatis-config.xml" />-->
+        <!--<property name="typeAliasesPackage" value="com.quancheng.spider.dataobject" />-->
+    <!--</bean>-->
+
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+        <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory2"/>-->
+        <!--<property name="basePackage" value="com.quancheng.spider.dao.datasource2" />-->
+    <!--</bean>-->
+
+</beans>

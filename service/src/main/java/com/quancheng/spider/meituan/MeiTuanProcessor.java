@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.quancheng.spider.core.AppContextUtil;
-import com.quancheng.spider.core.Task;
+import com.quancheng.spider.core.Executable;
 import com.quancheng.spider.dao.PoiInfoMapper;
 import com.quancheng.spider.dataobject.PoiInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,7 @@ import static java.util.regex.Pattern.compile;
  * @author: Robert
  * @create: 2018-06-26
  **/
-public class MeiTuanProcessor implements PageProcessor, Task {
+public class MeiTuanProcessor implements PageProcessor, Executable {
     private Logger logger = LoggerFactory.getLogger(getClass());
     private PoiInfoMapper poiInfoMapper = (PoiInfoMapper) AppContextUtil.getBean("poiInfoMapper");
 
@@ -110,7 +110,7 @@ public class MeiTuanProcessor implements PageProcessor, Task {
         List<String> targetUrls = Arrays.asList(
                     "http://as.meituan.com/meishi/pn1/",
                     "http://anqing.meituan.com/meishi/pn1/");
-        Task task = new MeiTuanProcessor();
-        task.exec(targetUrls);
+        Executable executable = new MeiTuanProcessor();
+        executable.exec(targetUrls);
     }
 }

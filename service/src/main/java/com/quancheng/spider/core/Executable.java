@@ -7,6 +7,6 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-03
  **/
-public interface Task {
+public interface Executable {
     void exec(Object param);
 }

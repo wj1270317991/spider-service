@@ -1,7 +1,7 @@
 package com.quancheng.spider.meituan;
 
 import com.quancheng.spider.core.AppContextUtil;
-import com.quancheng.spider.core.Task;
+import com.quancheng.spider.core.Executable;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.core.env.Environment;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-02
  **/
-public class MeituanCityProcessor implements PageProcessor, Task {
+public class MeituanCityProcessor implements PageProcessor, Executable {
     private static final String CITYURL = "http://www.meituan.com/changecity/";
     private static final String CITY_KEY = "citys";
     private Environment environment = (Environment) AppContextUtil.getBean("environment");
@@ -56,8 +56,8 @@ public class MeituanCityProcessor implements PageProcessor, Task {
     }
 
     public static void main(String[] args) throws IOException {
-        Task task = new MeituanCityProcessor();
-        task.exec(null);
+        Executable executable = new MeituanCityProcessor();
+        executable.exec(null);
     }
 
 

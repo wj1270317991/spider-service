@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.quancheng.spider.dao.PoiInfoMapper">
-    <insert id="insert" parameterType="com.quancheng.spider.dataobject.PoiInfo">
-        insert into data_service.poi_info(name,address,avg_score,comment_num,front_img,avg_price,gmt_created,gmt_modified)
-        values(#{title}, #{address},#{avgScore},#{allCommentNum},#{frontImg},#{avgPrice},now(),now())
-        ON DUPLICATE KEY UPDATE name=VALUES(name),
+<mapper namespace="com.quancheng.spider.dao.MerchantMapper">
+    <insert id="insert" parameterType="com.quancheng.spider.dataobject.Merchant">
+        insert into data_service.merchant(merchant_id,name,category,area,business_circle,address,score,total_comment,front_img,star_level,price,data_source,recommended_dishes,gmt_created,gmt_modified)
+        values(#{merchantId},#{name},#{category},#{area},#{businessCircle}, #{address},#{score},#{totalComment},#{frontImg},#{starLevel},#{price},#{dataSource},#{recommendedDishes},now(),now())
+        ON DUPLICATE KEY UPDATE
+        merchant_id=VALUES(merchant_id),
+        name=VALUES(name),
+        category=VALUES(category),
+        area=VALUES(area),
+        business_circle=VALUES(business_circle),
         address=VALUES(address),
-        avg_score=VALUES(avg_score),
-        comment_num=VALUES(comment_num),
+        score=VALUES(score),
+        total_comment=VALUES(total_comment),
         front_img=VALUES(front_img),
-        avg_price=VALUES(avg_price),
+        star_level=VALUES(star_level),
+        price=VALUES(price),
+        data_source=VALUES(data_source),
+        recommended_dishes=VALUES(recommended_dishes),
         gmt_modified=now()
     </insert>
 </mapper>

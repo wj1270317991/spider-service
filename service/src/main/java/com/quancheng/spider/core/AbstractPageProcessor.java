@@ -23,7 +23,7 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
     protected Request getRequest(String url, String pageType) {
         Request request = new Request(url);
         if (StringUtils.isNotEmpty(pageType)) {
-            request.putExtra(PageEnum.TYPE.name(), pageType);
+            request.putExtra(PageEnum.EXTRA_KEY.name(), pageType);
         }
         return request;
     }
@@ -38,13 +38,13 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
 
     @Override
     public void process(Page page) {
-        String pageType = (String) page.getRequest().getExtra(PageEnum.TYPE.name());
+        String pageType = (String) page.getRequest().getExtra(PageEnum.EXTRA_KEY.name());
         PageEnum pageEnum = PageEnum.valueOf(pageType);
         switch (pageEnum) {
             case URLS:
                 getUrls(page);
                 break;
-            case DATA:
+            case ITEM:
                 parseJson(page);
                 parseHtml(page);
                 break;
@@ -57,11 +57,18 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
     }
 
     /**
-     * 获取下一个target url
+     * 获取下一页url
      *
      * @param page
      */
-    public abstract void nextTarget(Page page);
+    public abstract void nextPage(Page page);
+
+    /**
+     * 获取详情页URL
+     *
+     * @param page
+     */
+    public abstract void getDetailUrl(Page page);
 
     /**
      * 获取URL列表(如从城市列表中获取目标URL集合)

@@ -7,13 +7,13 @@ package com.quancheng.spider.core;
  **/
 public enum PageEnum {
     // ResultItems key
-    DATA_KEY,
+    RESULT_ITEMS_KEY,
     // Request Extra key
-    TYPE,
+    EXTRA_KEY,
     // page url list
     URLS,
     // page data items
-    DATA,
+    ITEM,
     // page detail
     DETAIL;
 }

@@ -20,6 +20,9 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
     @Value("${cycle.retry.times}")
     private int cycleRetryTimes;
 
+    @Value("${sleep.time}")
+    private int sleepTime;
+
     protected Request getRequest(String url, String pageType) {
         Request request = new Request(url);
         if (StringUtils.isNotEmpty(pageType)) {
@@ -30,7 +33,7 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
 
     @Override
     public Site getSite() {
-        return Site.me().setCycleRetryTimes(cycleRetryTimes).setRetryTimes(3).setSleepTime(2000).setTimeOut(2 * 60 * 1000)
+        return Site.me().setCycleRetryTimes(cycleRetryTimes).setRetryTimes(3).setSleepTime(sleepTime).setTimeOut(2 * 60 * 1000)
                 .setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36")
                 .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
                 .addHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");

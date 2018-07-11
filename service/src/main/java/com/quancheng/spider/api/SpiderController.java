@@ -8,9 +8,6 @@ import com.quancheng.spider.impl.MeiTuanPageProcessor;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import us.codecraft.webmagic.processor.PageProcessor;
-
-import javax.annotation.Resource;
 
 /**
  * @program: spider.all

@@ -17,9 +17,11 @@ import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.Pipeline;
+import us.codecraft.webmagic.scheduler.RedisScheduler;
 import us.codecraft.webmagic.selector.Html;
 
 import javax.annotation.Resource;
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,15 +30,15 @@ import java.util.stream.Collectors;
 import static java.util.regex.Pattern.compile;
 
 /**
- * @program: webmagic-parent
- * @author: Robert
- * @create: 2018-06-26
- **/
+ * 美团商家数据爬虫
+ *
+ * @author Robert
+ */
 @Component("meiTuanPageProcessor")
 public class MeiTuanPageProcessor extends AbstractPageProcessor {
+    private static final String UUID = "meituan.com";
     private static final String TARGET_URL = "http:%s/meishi/pn1/";
     private static final String DETAIL_URL = "http://www.meituan.com/meishi/%s/";
-//    private static final String ID_PREFIX = "MT";
 
     @Value("${mt.target.url}")
     private String targetUrl;
@@ -49,15 +51,18 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
 
     @Override
     public void exec() {
-        exec(null, null);
+        exec(null, PageEnum.URLS);
     }
 
     @Override
     public void exec(String url, PageEnum pageEnum) {
-        String pageUrl = StringUtils.isNotEmpty(url) ? url :targetUrl;
-        Spider.create(this).addRequest(getRequest(pageUrl, pageEnum.name()))
+        String pageUrl = StringUtils.isNotEmpty(url) ? url : targetUrl;
+        String hostName = URI.create(pageUrl).getHost();
+        String uuid = StringUtils.isNotEmpty(hostName) ? hostName : UUID;
+        Spider.create(this).setUUID(uuid)
+                .addRequest(getRequest(pageUrl, pageEnum.name()))
+                .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(pipeline)
-                //.setScheduler(new RedisScheduler(jedisPool))
                 .thread(spiderThread).runAsync();
     }
 
@@ -99,18 +104,9 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
         });
     }
 
-    private String extractJson(Page page) {
-        Pattern pattern = compile("window._appState =(.*);</script>");
-        Matcher matcher = pattern.matcher(page.getJson().toString());
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
     @Override
     public void parseJson(Page page) {
-        String data = extractJson(page);
+        String data = MeituanJsonHandler.extractAppJson(page.getJson().toString());
         if (StringUtils.isNotEmpty(data)) {
             JSONObject jsonObject = JSON.parseObject(data);
             JSONObject poiLists = jsonObject.getJSONObject("poiLists");
@@ -135,7 +131,7 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
     @Override
     public void parseDetailPage(Page page) {
         System.err.println("detail========>" + page);
-        String json = extractJson(page);
+        String json = MeituanJsonHandler.extractAppJson(page.getJson().toString());
         if (StringUtils.isNotEmpty(json)) {
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject detailInfo = jsonObject.getJSONObject("detailInfo");

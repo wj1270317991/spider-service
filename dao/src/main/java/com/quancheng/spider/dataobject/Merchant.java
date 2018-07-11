@@ -69,6 +69,20 @@ public class Merchant {
      */
     private String recommendedDishes;
 
+    /**
+     * 经度
+     */
+    private String longitude;
+    private String latitude;
+    private String telphone;
+    private String officeHours;
+    private boolean takeawayFlag;
+    private boolean bookingFlag;
+    private boolean parkingFlag;
+    private boolean wifiFlag;
+    private String featuredDishes;
+    private String environment;
+
     private Date gmtCreated;
 
     private Date gmtModified;
@@ -189,7 +203,87 @@ public class Merchant {
         return recommendedDishes;
     }
 
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getTelphone() {
+        return telphone;
+    }
+
+    public void setTelphone(String telphone) {
+        this.telphone = telphone;
+    }
+
+    public String getOfficeHours() {
+        return officeHours;
+    }
+
+    public void setOfficeHours(String officeHours) {
+        this.officeHours = officeHours;
+    }
+
+    public String getFeaturedDishes() {
+        return featuredDishes;
+    }
+
+    public void setFeaturedDishes(String featuredDishes) {
+        this.featuredDishes = featuredDishes;
+    }
+
+    public String getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(String environment) {
+        this.environment = environment;
+    }
+
     public void setRecommendedDishes(String recommendedDishes) {
         this.recommendedDishes = recommendedDishes;
+    }
+
+    public boolean isTakeawayFlag() {
+        return takeawayFlag;
+    }
+
+    public void setTakeawayFlag(boolean takeawayFlag) {
+        this.takeawayFlag = takeawayFlag;
+    }
+
+    public boolean isBookingFlag() {
+        return bookingFlag;
+    }
+
+    public void setBookingFlag(boolean bookingFlag) {
+        this.bookingFlag = bookingFlag;
+    }
+
+    public boolean isParkingFlag() {
+        return parkingFlag;
+    }
+
+    public void setParkingFlag(boolean parkingFlag) {
+        this.parkingFlag = parkingFlag;
+    }
+
+    public boolean isWifiFlag() {
+        return wifiFlag;
+    }
+
+    public void setWifiFlag(boolean wifiFlag) {
+        this.wifiFlag = wifiFlag;
     }
 }

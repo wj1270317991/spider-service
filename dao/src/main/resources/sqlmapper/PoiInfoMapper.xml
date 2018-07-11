@@ -2,22 +2,82 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.quancheng.spider.dao.MerchantMapper">
     <insert id="insert" parameterType="com.quancheng.spider.dataobject.Merchant">
-        insert into data_service.merchant(merchant_id,name,category,area,business_circle,address,score,total_comment,front_img,star_level,price,data_source,recommended_dishes,gmt_created,gmt_modified)
-        values(#{merchantId},#{name},#{category},#{area},#{businessCircle}, #{address},#{score},#{totalComment},#{frontImg},#{starLevel},#{price},#{dataSource},#{recommendedDishes},now(),now())
+        insert into
+        data_service.merchant(merchant_id,name,category,area,business_circle,address,score,total_comment,front_img,star_level,price,data_source,recommended_dishes,
+        longitude,latitude,telphone,office_hours,takeaway_flag,booking_flag,parking_flag,wifi_flag,featured_dishes,environment,gmt_created,gmt_modified)
+        values(#{merchantId},#{name},#{category},#{area},#{businessCircle},
+        #{address},#{score},#{totalComment},#{frontImg},#{starLevel},#{price},#{dataSource},#{recommendedDishes},
+        #{longitude},#{latitude},#{telphone},#{officeHours},#{takeawayFlag},#{bookingFlag},#{parkingFlag},#{wifiFlag},#{featuredDishes},#{environment},now(),now())
         ON DUPLICATE KEY UPDATE
-        merchant_id=VALUES(merchant_id),
-        name=VALUES(name),
-        category=VALUES(category),
-        area=VALUES(area),
-        business_circle=VALUES(business_circle),
-        address=VALUES(address),
-        score=VALUES(score),
-        total_comment=VALUES(total_comment),
-        front_img=VALUES(front_img),
-        star_level=VALUES(star_level),
-        price=VALUES(price),
-        data_source=VALUES(data_source),
-        recommended_dishes=VALUES(recommended_dishes),
+        <if test="merchantId != null and merchantId != ''">
+            merchant_id=VALUES(merchant_id),
+        </if>
+        <if test="name != null and name != ''">
+            name=VALUES(name),
+        </if>
+        <if test="longitude != null and longitude != ''">
+            longitude=VALUES(longitude),
+        </if>
+        <if test="latitude != null and latitude != ''">
+            latitude=VALUES(latitude),
+        </if>
+        <if test="telphone != null and telphone != ''">
+            telphone=VALUES(telphone),
+        </if>
+        <if test="officeHours != null and officeHours != ''">
+            office_hours=VALUES(office_hours),
+        </if>
+        <if test="takeawayFlag != null">
+            takeaway_Flag=VALUES(takeaway_Flag),
+        </if>
+        <if test="bookingFlag != null">
+            booking_Flag=VALUES(booking_Flag),
+        </if>
+        <if test="parkingFlag != null">
+            parking_Flag=VALUES(parking_Flag),
+        </if>
+        <if test="wifiFlag != null">
+            wifi_Flag=VALUES(wifi_Flag),
+        </if>
+        <if test="featuredDishes != null and featuredDishes != ''">
+            featured_Dishes=VALUES(featured_Dishes),
+        </if>
+        <if test="environment != null and environment != ''">
+            environment=VALUES(environment),
+        </if>
+        <if test="category != null and category != ''">
+            category=VALUES(category),
+        </if>
+        <if test="area != null and area != ''">
+            area=VALUES(area),
+        </if>
+        <if test="businessCircle != null and businessCircle != ''">
+            business_circle=VALUES(business_circle),
+        </if>
+        <if test="address != null and address != ''">
+            address=VALUES(address),
+        </if>
+        <if test="score != null and score != ''">
+            score=VALUES(score),
+        </if>
+        <if test="totalComment != null and totalComment != ''">
+            total_comment=VALUES(total_comment),
+        </if>
+        <if test="frontImg != null and frontImg != ''">
+            front_img=VALUES(front_img),
+        </if>
+        <if test="starLevel != null and starLevel != ''">
+            star_level=VALUES(star_level),
+        </if>
+        <if test="price != null and price != ''">
+            price=VALUES(price),
+        </if>
+        <if test="dataSource != null and dataSource != ''">
+            data_source=VALUES(data_source),
+        </if>
+        <if test="recommendedDishes != null and recommendedDishes != ''">
+            recommended_dishes=VALUES(recommended_dishes),
+        </if>
         gmt_modified=now()
     </insert>
 </mapper>

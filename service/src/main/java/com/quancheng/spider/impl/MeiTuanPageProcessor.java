@@ -216,11 +216,11 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
                 merchant.setFeaturedDishes(JSON.toJSONString(recommendedInfos));
             }
 
-            City city = getCity(page);
-            if (StringUtils.isNotEmpty(title) && null != city && StringUtils.isNotEmpty(city.getAreaName())) {
-                title = title.replace(city.getAreaName(), "");
-                merchant.setCategory(title);
-            }
+//            City city = getCity(page);
+//            if (StringUtils.isNotEmpty(title) && null != city && StringUtils.isNotEmpty(city.getAreaName())) {
+//                title = title.replace(city.getAreaName(), "");
+//                merchant.setCategory(title);
+//            }
 
             page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), Collections.singletonList(merchant));
         }

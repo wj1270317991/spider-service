@@ -114,28 +114,28 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
                 addTargetRequestOfCity(page);
                 break;
             case "area":
-                List<Request> requestList = getTargetRequestOfArea(page);
-                if (CollectionUtils.isEmpty(requestList)) {
-                    page.setSkip(true);
-                    break;
-                }
-                List<City> cityList = requestList.stream().map(req -> (City) req.getExtra(ExtraKeyEnum.CITY.name()))
-                        .collect(Collectors.toList());
-                System.err.println("save ===>" + JSON.toJSONString(cityList));
-
-                page.putField(PageEnum.RESULT_CITY_KEY.name(), cityList);
-                requestList.forEach(page::addTargetRequest);
+                parseAllTarget(page);
                 break;
             default:
                 break;
         }
     }
 
+    private void parseAllTarget(Page page) {
+        List<Request> requestList = getTargetRequestOfArea(page);
+        if (CollectionUtils.isEmpty(requestList)) {
+            page.setSkip(true);
+            return;
+        }
+        List<City> cityList = requestList.stream().map(req -> (City) req.getExtra(ExtraKeyEnum.CITY.name()))
+                .collect(Collectors.toList());
+        page.putField(PageEnum.RESULT_CITY_KEY.name(), cityList);
+        requestList.forEach(page::addTargetRequest);
+    }
+
     private List<Request> getTargetRequestOfArea(Page page) {
         String data = MeituanJsonHandler.extractAppJson(page.getJson().toString());
         List<AreaInfo> areaInfos = MeituanJsonHandler.parseArea(data);
-        System.err.println("Arealist======>" + JSON.toJSONString(areaInfos));
-
         City city = getCity(page);
         try {
             return MeituanJsonHandler.getAreaRequests(city, areaInfos);
@@ -177,8 +177,8 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
                 }
 
                 page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), merchants);
-                //getDetailUrl(page);
-                //nextPage(page);
+                getDetailUrl(page);
+                nextPage(page);
             }
         }
     }
@@ -197,12 +197,10 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
 
             Merchant merchant = new Merchant();
             merchant.setMerchantId(detail.getPoiId());
-            merchant.setScore(detail.getAvgScore());
             merchant.setTelphone(detail.getPhone());
             merchant.setOfficeHours(detail.getOpenTime());
             merchant.setLongitude(detail.getLongitude());
             merchant.setLatitude(detail.getLatitude());
-            merchant.setPrice(detail.getAvgPrice());
             page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), Collections.singletonList(merchant));
         }
     }

@@ -50,6 +50,11 @@ public class Merchant {
     private String category;
 
     /**
+     * 城市
+     */
+    private String city;
+
+    /**
      * 区域
      */
     private String area;
@@ -285,5 +290,13 @@ public class Merchant {
 
     public void setWifiFlag(boolean wifiFlag) {
         this.wifiFlag = wifiFlag;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 }

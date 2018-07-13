@@ -112,7 +112,6 @@ public class MeituanJsonHandler {
             request.setExtras(extraMap);
             requests.add(request);
         }
-        System.err.println("city=====>" + JSON.toJSONString(requests));
         return requests;
     }
 
@@ -124,8 +123,6 @@ public class MeituanJsonHandler {
             City ct = (City) city.clone();
             ct.setAreaName(areaInfo.getAreaName());
             ct.setTradingArea(areaInfo.getName());
-
-            System.err.println(JSON.toJSONString(ct));
 
             request = new Request();
             request.setUrl(areaInfo.getUrl());

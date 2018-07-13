@@ -3,9 +3,9 @@
 <mapper namespace="com.quancheng.spider.dao.MerchantMapper">
     <insert id="insert" parameterType="com.quancheng.spider.dataobject.Merchant">
         insert into
-        data_service.merchant(merchant_id,name,category,area,business_circle,address,score,total_comment,front_img,star_level,price,data_source,recommended_dishes,
+        data_service.merchant(merchant_id,name,category,city,area,business_circle,address,score,total_comment,front_img,star_level,price,data_source,recommended_dishes,
         longitude,latitude,telphone,office_hours,takeaway_flag,booking_flag,parking_flag,wifi_flag,featured_dishes,environment,gmt_created,gmt_modified)
-        values(#{merchantId},#{name},#{category},#{area},#{businessCircle},
+        values(#{merchantId},#{name},#{category},#{city},#{area},#{businessCircle},
         #{address},#{score},#{totalComment},#{frontImg},#{starLevel},#{price},#{dataSource},#{recommendedDishes},
         #{longitude},#{latitude},#{telphone},#{officeHours},#{takeawayFlag},#{bookingFlag},#{parkingFlag},#{wifiFlag},#{featuredDishes},#{environment},now(),now())
         ON DUPLICATE KEY UPDATE
@@ -47,6 +47,9 @@
         </if>
         <if test="category != null and category != ''">
             category=VALUES(category),
+        </if>
+        <if test="city != null and city != ''">
+            city=VALUES(city),
         </if>
         <if test="area != null and area != ''">
             area=VALUES(area),

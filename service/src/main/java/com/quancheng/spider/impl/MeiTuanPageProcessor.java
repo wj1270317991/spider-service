@@ -172,13 +172,14 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
 
                 City city = getCity(page);
                 for (Merchant merchant : merchants) {
+                    merchant.setCity(city.getProvinceName());
                     merchant.setArea(city.getAreaName());
                     merchant.setBusinessCircle(city.getTradingArea());
                 }
 
                 page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), merchants);
                 getDetailUrl(page);
-                nextPage(page);
+                // nextPage(page);
             }
         }
     }

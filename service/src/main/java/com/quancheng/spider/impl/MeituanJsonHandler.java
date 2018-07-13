@@ -25,6 +25,8 @@ import static java.util.regex.Pattern.compile;
  **/
 public class MeituanJsonHandler {
     private static final String CITY_TEMPLATE = "http://%s.meituan.com/meishi/";
+    private static final String PAGE_AREA_SUFFIX = "pn1/";
+
 
 
     public static List<City> parseCity(String json) {
@@ -58,9 +60,9 @@ public class MeituanJsonHandler {
             AreaInfo areaInfo = jsonObject.toJavaObject(AreaInfo.class);
 
             // TODO 为防止被封IP仅供测试
-//            if (!StringUtils.equals("浦东新区", areaInfo.getName())) {
-//                continue;
-//            }
+            if (!StringUtils.equals("浦东新区", areaInfo.getName())) {
+                continue;
+            }
 
             JSONArray subAreas = jsonObject.getJSONArray("subAreas");
             List<AreaInfo> areaList = subAreas.toJavaList(AreaInfo.class);
@@ -125,7 +127,7 @@ public class MeituanJsonHandler {
             ct.setTradingArea(areaInfo.getName());
 
             request = new Request();
-            request.setUrl(areaInfo.getUrl());
+            request.setUrl(areaInfo.getUrl() + PAGE_AREA_SUFFIX);
             extraMap = new HashMap<>();
             extraMap.put(ExtraKeyEnum.KEY.name(), ExtraKeyEnum.ITEM.name());
             extraMap.put(ExtraKeyEnum.CITY.name(), ct);

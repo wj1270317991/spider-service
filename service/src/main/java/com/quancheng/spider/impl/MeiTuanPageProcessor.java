@@ -202,6 +202,7 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
             merchant.setOfficeHours(detail.getOpenTime());
             merchant.setLongitude(detail.getLongitude());
             merchant.setLatitude(detail.getLatitude());
+            merchant.setDataSource(DataSourceEnum.meituan.name());
             page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), Collections.singletonList(merchant));
         }
     }

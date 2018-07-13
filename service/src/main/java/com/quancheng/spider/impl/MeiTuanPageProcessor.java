@@ -11,6 +11,7 @@ import com.quancheng.spider.dataobject.City;
 import com.quancheng.spider.dataobject.Merchant;
 import com.quancheng.spider.model.meituan.AreaInfo;
 import com.quancheng.spider.model.meituan.DetailInfo;
+import com.quancheng.spider.model.meituan.RecommendedInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,6 +179,7 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
                 }
 
                 page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), merchants);
+                page.putField(ExtraKeyEnum.CITY.name(), city);
                 getDetailUrl(page);
                 // nextPage(page);
             }
@@ -196,6 +198,13 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
             JSONObject detailInfo = jsonObject.getJSONObject("detailInfo");
             DetailInfo detail = detailInfo.toJavaObject(DetailInfo.class);
 
+            JSONArray jsonArray = jsonObject.getJSONArray("recommended");
+            List<RecommendedInfo> recommendedInfos = jsonArray.toJavaList(RecommendedInfo.class);
+
+            JSONArray crumbNav = jsonObject.getJSONArray("crumbNav");
+            JSONObject crumbObj = (JSONObject) crumbNav.get(crumbNav.size() - 1);
+            String title = crumbObj.getString("title");
+
             Merchant merchant = new Merchant();
             merchant.setMerchantId(detail.getPoiId());
             merchant.setTelphone(detail.getPhone());
@@ -203,6 +212,16 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
             merchant.setLongitude(detail.getLongitude());
             merchant.setLatitude(detail.getLatitude());
             merchant.setDataSource(DataSourceEnum.meituan.name());
+            if (CollectionUtils.isNotEmpty(recommendedInfos)) {
+                merchant.setFeaturedDishes(JSON.toJSONString(recommendedInfos));
+            }
+
+            City city = getCity(page);
+            if (StringUtils.isNotEmpty(title) && null != city && StringUtils.isNotEmpty(city.getAreaName())) {
+                title = title.replace(city.getAreaName(), "");
+                merchant.setCategory(title);
+            }
+
             page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), Collections.singletonList(merchant));
         }
     }

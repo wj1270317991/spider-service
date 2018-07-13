@@ -10,6 +10,7 @@ import com.quancheng.spider.core.PageEnum;
 import com.quancheng.spider.dataobject.City;
 import com.quancheng.spider.dataobject.Merchant;
 import com.quancheng.spider.model.meituan.AreaInfo;
+import com.quancheng.spider.model.meituan.DetailInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,6 +193,17 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
         if (StringUtils.isNotEmpty(json)) {
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject detailInfo = jsonObject.getJSONObject("detailInfo");
+            DetailInfo detail = detailInfo.toJavaObject(DetailInfo.class);
+
+            Merchant merchant = new Merchant();
+            merchant.setMerchantId(detail.getPoiId());
+            merchant.setScore(detail.getAvgScore());
+            merchant.setTelphone(detail.getPhone());
+            merchant.setOfficeHours(detail.getOpenTime());
+            merchant.setLongitude(detail.getLongitude());
+            merchant.setLatitude(detail.getLatitude());
+            merchant.setPrice(detail.getAvgPrice());
+            page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), Collections.singletonList(merchant));
         }
     }
 

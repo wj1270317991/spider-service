@@ -1,4 +1,4 @@
-package com.quancheng.spider.model;
+package com.quancheng.spider.model.meituan;
 
 import java.util.List;
 
@@ -7,10 +7,10 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-11
  **/
-public class Province {
+public class ProvinceInfo {
     private String provinceCode;
     private String provinceName;
-    private List<City> cityInfoList;
+    private List<CityInfo> cityInfoList;
 
     public String getProvinceCode() {
         return provinceCode;
@@ -28,11 +28,11 @@ public class Province {
         this.provinceName = provinceName;
     }
 
-    public List<City> getCityInfoList() {
+    public List<CityInfo> getCityInfoList() {
         return cityInfoList;
     }
 
-    public void setCityInfoList(List<City> cityInfoList) {
+    public void setCityInfoList(List<CityInfo> cityInfoList) {
         this.cityInfoList = cityInfoList;
     }
 }

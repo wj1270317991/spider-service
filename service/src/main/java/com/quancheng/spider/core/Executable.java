@@ -1,5 +1,7 @@
 package com.quancheng.spider.core;
 
+import us.codecraft.webmagic.Request;
+
 /**
  * @program: spider.all
  * @author: Robert
@@ -8,10 +10,5 @@ package com.quancheng.spider.core;
 public interface Executable {
     void exec();
 
-    /**
-     * 获取指定URL的数据Executable
-     * @param url
-     * @param pageEnum
-     */
-    void exec(String url, PageEnum pageEnum);
+    void exec(Request request);
 }

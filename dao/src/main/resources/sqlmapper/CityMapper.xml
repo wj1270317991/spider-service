@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.quancheng.spider.dao.CityMapper">
+    <insert id="insert" parameterType="com.quancheng.spider.dataobject.City">
+        insert into
+        data_service.city(name,province_name,area_name,trading_area,gmt_created,gmt_modified)
+        values(#{name},#{provinceName},#{areaName},#{tradingArea},now(),now())
+        ON DUPLICATE KEY UPDATE
+        <if test="name != null and name != ''">
+            name=VALUES(name),
+        </if>
+        <if test="provinceName != null and provinceName != ''">
+            province_name=VALUES(province_name),
+        </if>
+        <if test="areaName != null and areaName != ''">
+            area_name=VALUES(area_name),
+        </if>
+        <if test="tradingArea != null and tradingArea != ''">
+            trading_area=VALUES(trading_area),
+        </if>
+        gmt_modified=now()
+    </insert>
+</mapper>

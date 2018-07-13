@@ -1,13 +1,16 @@
 package com.quancheng.spider.api;
 
 import com.quancheng.spider.core.DataSourceEnum;
-import com.quancheng.spider.core.Executable;
-import com.quancheng.spider.core.PageEnum;
+import com.quancheng.spider.core.ExtraKeyEnum;
 import com.quancheng.spider.impl.DianpingPageProcessor;
 import com.quancheng.spider.impl.MeiTuanPageProcessor;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import us.codecraft.webmagic.Request;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @program: spider.all
@@ -29,15 +32,16 @@ public class SpiderController {
     public String getPage(@RequestParam("targetUrl") String targetUrl,
                           @RequestParam("origin") String origin,
                           @RequestParam("pageType") String pageType) {
-        Executable executable = null;
         DataSourceEnum sourceEnum = DataSourceEnum.valueOf(origin);
         if (sourceEnum == DataSourceEnum.dianping) {
-            executable = dianpingPageProcessor;
         } else if (sourceEnum == DataSourceEnum.meituan) {
-            executable = meiTuanPageProcessor;
-        }
-        if (null != executable) {
-            executable.exec(targetUrl, PageEnum.valueOf(pageType));
+            Request request = new Request();
+            request.setUrl(targetUrl);
+            Map<String, Object> map = new HashMap<>();
+            map.put(ExtraKeyEnum.KEY.name(), ExtraKeyEnum.valueOf(pageType));
+            map.put(ExtraKeyEnum.URL_TYPE.name(), "city");
+            request.setExtras(map);
+            meiTuanPageProcessor.exec(request);
         }
         return SUCCESS;
     }

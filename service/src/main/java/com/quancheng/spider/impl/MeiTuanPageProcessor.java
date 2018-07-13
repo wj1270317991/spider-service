@@ -5,24 +5,29 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.quancheng.spider.core.AbstractPageProcessor;
 import com.quancheng.spider.core.DataSourceEnum;
+import com.quancheng.spider.core.ExtraKeyEnum;
 import com.quancheng.spider.core.PageEnum;
+import com.quancheng.spider.dataobject.City;
 import com.quancheng.spider.dataobject.Merchant;
+import com.quancheng.spider.model.meituan.AreaInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
-import us.codecraft.webmagic.selector.Html;
 
 import javax.annotation.Resource;
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -37,7 +42,6 @@ import static java.util.regex.Pattern.compile;
 @Component("meiTuanPageProcessor")
 public class MeiTuanPageProcessor extends AbstractPageProcessor {
     private static final String UUID = "meituan.com";
-    private static final String TARGET_URL = "http:%s/meishi/pn1/";
     private static final String DETAIL_URL = "http://www.meituan.com/meishi/%s/";
 
     @Value("${mt.target.url}")
@@ -46,23 +50,31 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
     private Integer spiderThread;
     @Autowired
     private JedisPool jedisPool;
+
     @Resource(name = "merchantPipeline")
     private Pipeline pipeline;
 
+    @Resource(name = "cityPipeline")
+    private Pipeline cityPipe;
+
     @Override
     public void exec() {
-        exec(null, PageEnum.URLS);
+        Map<String, Object> map = new HashMap<>();
+        map.put(ExtraKeyEnum.KEY.name(), ExtraKeyEnum.URLS.name());
+        map.put(ExtraKeyEnum.URL_TYPE.name(), "city");
+        Request request = this.getRequest(targetUrl, map);
+        exec(request);
     }
 
     @Override
-    public void exec(String url, PageEnum pageEnum) {
-        String pageUrl = StringUtils.isNotEmpty(url) ? url : targetUrl;
-        String hostName = URI.create(pageUrl).getHost();
+    public void exec(Request request) {
+        String hostName = URI.create(request.getUrl()).getHost();
         String uuid = StringUtils.isNotEmpty(hostName) ? hostName : UUID;
         Spider.create(this).setUUID(uuid)
-                .addRequest(getRequest(pageUrl, pageEnum.name()))
+                .addRequest(request)
                 .setScheduler(new RedisScheduler(jedisPool))
                 .addPipeline(pipeline)
+                .addPipeline(cityPipe)
                 .thread(spiderThread).runAsync();
     }
 
@@ -77,16 +89,16 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
                 int pageIndex = Integer.valueOf(pageNum) + 1;
                 pageUrl = matcher.replaceFirst(pageIndex + "");
                 logger.info("Target url is:{}", pageUrl);
-                page.addTargetRequest(getRequest(pageUrl, PageEnum.ITEM.name()));
+                page.addTargetRequest(getRequest(pageUrl, ExtraKeyEnum.KEY.name()));
             }
         }
     }
 
     @Override
     public void getDetailUrl(Page page) {
-        List<Merchant> merchants = page.getResultItems().get(PageEnum.RESULT_ITEMS_KEY.name());
+        List<Merchant> merchants = page.getResultItems().get(PageEnum.RESULT_MERCHAANT_KEY.name());
         merchants.stream().map(rs -> format(DETAIL_URL, rs.getMerchantId()))
-                .forEach(url -> page.addTargetRequest(getRequest(url, PageEnum.DETAIL.name())));
+                .forEach(url -> page.addTargetRequest(getRequest(url, ExtraKeyEnum.DETAIL.name())));
     }
 
     private String format(String template, String value) {
@@ -95,13 +107,52 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
 
     @Override
     public void getUrls(Page page) {
-        Html html = page.getHtml();
-        Element element = html.getDocument().getElementsByClass("alphabet-city-area").first();
-        Elements cityElements = element.select("a[href]");
-        cityElements.forEach(ele -> {
-            String href = ele.attr("href");
-            page.addTargetRequest(getRequest(format(TARGET_URL, href), PageEnum.ITEM.name()));
-        });
+        String extra = (String) page.getRequest().getExtra(ExtraKeyEnum.URL_TYPE.name());
+        switch (extra) {
+            case "city":
+                addTargetRequestOfCity(page);
+                break;
+            case "area":
+                List<Request> requestList = getTargetRequestOfArea(page);
+                if (CollectionUtils.isEmpty(requestList)) {
+                    page.setSkip(true);
+                    break;
+                }
+                List<City> cityList = requestList.stream().map(req -> (City) req.getExtra(ExtraKeyEnum.CITY.name()))
+                        .collect(Collectors.toList());
+                System.err.println("save ===>" + JSON.toJSONString(cityList));
+
+                page.putField(PageEnum.RESULT_CITY_KEY.name(), cityList);
+                requestList.forEach(page::addTargetRequest);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private List<Request> getTargetRequestOfArea(Page page) {
+        String data = MeituanJsonHandler.extractAppJson(page.getJson().toString());
+        List<AreaInfo> areaInfos = MeituanJsonHandler.parseArea(data);
+        System.err.println("Arealist======>" + JSON.toJSONString(areaInfos));
+
+        City city = getCity(page);
+        try {
+            return MeituanJsonHandler.getAreaRequests(city, areaInfos);
+        } catch (CloneNotSupportedException e) {
+            logger.error("Clone area failed>", e);
+        }
+        return Collections.emptyList();
+    }
+
+    private City getCity(Page page) {
+        JSONObject extraObj = (JSONObject) page.getRequest().getExtra(ExtraKeyEnum.CITY.name());
+        return (City) extraObj.toJavaObject(City.class);
+    }
+
+    private void addTargetRequestOfCity(Page page) {
+        List<City> cities = MeituanJsonHandler.parseCity(page.getJson().toString());
+        List<Request> requestList = MeituanJsonHandler.getCityRequests(cities);
+        requestList.forEach(page::addTargetRequest);
     }
 
     @Override
@@ -117,8 +168,15 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
             if (null != totalCounts && totalCounts > 0 && null != poiInfos && poiInfos.size() > 0) {
                 List<PoiInfo> poiInfoList = poiInfos.toJavaList(PoiInfo.class);
                 List<Merchant> merchants = poiInfoList.stream().map(this::transform).collect(Collectors.toList());
-                page.putField(PageEnum.RESULT_ITEMS_KEY.name(), merchants);
-                getDetailUrl(page);
+
+                City city = getCity(page);
+                for (Merchant merchant : merchants) {
+                    merchant.setArea(city.getAreaName());
+                    merchant.setBusinessCircle(city.getTradingArea());
+                }
+
+                page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), merchants);
+                //getDetailUrl(page);
                 //nextPage(page);
             }
         }
@@ -130,7 +188,6 @@ public class MeiTuanPageProcessor extends AbstractPageProcessor {
 
     @Override
     public void parseDetailPage(Page page) {
-        System.err.println("detail========>" + page);
         String json = MeituanJsonHandler.extractAppJson(page.getJson().toString());
         if (StringUtils.isNotEmpty(json)) {
             JSONObject jsonObject = JSON.parseObject(json);

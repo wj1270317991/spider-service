@@ -1,4 +1,4 @@
-package com.quancheng.spider.model;
+package com.quancheng.spider.model.meituan;
 
 import java.util.List;
 
@@ -7,18 +7,19 @@ import java.util.List;
  * @author: Robert
  * @create: 2018-07-11
  **/
-public class Area {
+public class AreaInfo {
     private String id;
     private String name;
+    private String areaName;
     private String url;
-    private List<Area> subAreas;
+    private List<AreaInfo> subAreas;
 
-    public List<Area> getSubAreas() {
-        return subAreas;
+    public String getAreaName() {
+        return areaName;
     }
 
-    public void setSubAreas(List<Area> subAreas) {
-        this.subAreas = subAreas;
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 
     public String getId() {
@@ -43,5 +44,13 @@ public class Area {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public List<AreaInfo> getSubAreas() {
+        return subAreas;
+    }
+
+    public void setSubAreas(List<AreaInfo> subAreas) {
+        this.subAreas = subAreas;
     }
 }

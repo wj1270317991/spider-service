@@ -15,11 +15,13 @@ import java.util.List;
 public abstract class AbstractDbPipeline<T> implements Pipeline {
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<T> list = resultItems.get(PageEnum.RESULT_ITEMS_KEY.name());
+        List<T> list = getItems(resultItems);
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(this::save);
         }
     }
+
+    public abstract List<T> getItems(ResultItems resultItems);
 
     public abstract int save(T t);
 }

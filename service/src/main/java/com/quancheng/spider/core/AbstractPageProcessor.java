@@ -1,5 +1,6 @@
 package com.quancheng.spider.core;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,8 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
+
+import java.util.Map;
 
 /**
  * @program: spider.all
@@ -26,7 +29,17 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
     protected Request getRequest(String url, String pageType) {
         Request request = new Request(url);
         if (StringUtils.isNotEmpty(pageType)) {
-            request.putExtra(PageEnum.EXTRA_KEY.name(), pageType);
+            request.putExtra(ExtraKeyEnum.KEY.name(), pageType);
+        }
+        return request;
+    }
+
+    protected Request getRequest(String url, Map<String, Object> paramMap) {
+        Request request = new Request(url);
+        if (MapUtils.isNotEmpty(paramMap)) {
+            for (String key : paramMap.keySet()) {
+                request.putExtra(key, paramMap.get(key));
+            }
         }
         return request;
     }
@@ -41,9 +54,9 @@ public abstract class AbstractPageProcessor implements PageProcessor, Executable
 
     @Override
     public void process(Page page) {
-        String pageType = (String) page.getRequest().getExtra(PageEnum.EXTRA_KEY.name());
-        PageEnum pageEnum = PageEnum.valueOf(pageType);
-        switch (pageEnum) {
+        String pageType = (String) page.getRequest().getExtra(ExtraKeyEnum.KEY.name());
+        ExtraKeyEnum keyEnum = ExtraKeyEnum.valueOf(pageType);
+        switch (keyEnum) {
             case URLS:
                 getUrls(page);
                 break;

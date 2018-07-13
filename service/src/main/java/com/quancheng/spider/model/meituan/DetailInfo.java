@@ -1,4 +1,4 @@
-package com.quancheng.spider.model;
+package com.quancheng.spider.model.meituan;
 
 /**
  * @program: spider.all

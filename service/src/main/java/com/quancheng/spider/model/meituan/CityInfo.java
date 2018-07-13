@@ -1,24 +1,16 @@
-package com.quancheng.spider.model;
+package com.quancheng.spider.model.meituan;
 
 /**
  * @program: spider.all
  * @author: Robert
  * @create: 2018-07-11
  **/
-public class City {
+public class CityInfo {
     private String id;
     private String provinceName;
     private String name;
     private String pinyin;
     private String acronym;
-
-    public String getProvinceName() {
-        return provinceName;
-    }
-
-    public void setProvinceName(String provinceName) {
-        this.provinceName = provinceName;
-    }
 
     public String getId() {
         return id;
@@ -26,6 +18,14 @@ public class City {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getProvinceName() {
+        return provinceName;
+    }
+
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
     }
 
     public String getName() {

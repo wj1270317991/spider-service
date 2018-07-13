@@ -3,6 +3,7 @@ package com.quancheng.spider.impl;
 import com.alibaba.fastjson.JSON;
 import com.quancheng.spider.core.AbstractPageProcessor;
 import com.quancheng.spider.core.DataSourceEnum;
+import com.quancheng.spider.core.ExtraKeyEnum;
 import com.quancheng.spider.core.PageEnum;
 import com.quancheng.spider.dataobject.Merchant;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
 import javax.annotation.Resource;
@@ -41,24 +42,28 @@ public class DianpingPageProcessor extends AbstractPageProcessor {
 
     @Override
     public void exec() {
-        exec(null, PageEnum.URLS);
     }
 
     @Override
-    public void exec(String url, PageEnum pageEnum) {
-        String pageUrl = StringUtils.isNotEmpty(url) ? url : targetUrl;
-        Spider.create(this).addRequest(getRequest(pageUrl, pageEnum.name()))
-                .addPipeline(pipeline)
-                //.setScheduler(new RedisScheduler(jedisPool))
-                .thread(spiderThread).runAsync();
+    public void exec(Request request) {
+
     }
+
+//    @Override
+//    public void exec(String url, PageEnum pageEnum) {
+//        String pageUrl = StringUtils.isNotEmpty(url) ? url : targetUrl;
+//        Spider.create(this).addRequest(getRequest(pageUrl, pageEnum.name()))
+//                .addPipeline(pipeline)
+//                //.setScheduler(new RedisScheduler(jedisPool))
+//                .thread(spiderThread).runAsync();
+//    }
 
 
     @Override
     public void nextPage(Page page) {
         Element next = page.getHtml().getDocument().getElementsByClass("next").first();
         String href = next.attr("href");
-        page.addTargetRequest(getRequest(href, PageEnum.ITEM.name()));
+        page.addTargetRequest(getRequest(href, ExtraKeyEnum.ITEM.name()));
     }
 
     @Override
@@ -67,7 +72,7 @@ public class DianpingPageProcessor extends AbstractPageProcessor {
         Elements elements = content.select("a[data-click-name=shop_img_click]");
         elements.stream().map(rs -> rs.attr("href"))
                 .filter(StringUtils::isNotEmpty)
-                .map(rs -> getRequest(rs, PageEnum.DETAIL.name()))
+                .map(rs -> getRequest(rs, ExtraKeyEnum.DETAIL.name()))
                 .forEach(page::addTargetRequest);
     }
 
@@ -87,7 +92,7 @@ public class DianpingPageProcessor extends AbstractPageProcessor {
         Elements liElements = shopAllList.select("li");
         List<Merchant> result = liElements.stream().map(this::transform)
                 .filter(Objects::nonNull).collect(Collectors.toList());
-        page.putField(PageEnum.RESULT_ITEMS_KEY.name(), result);
+        page.putField(PageEnum.RESULT_MERCHAANT_KEY.name(), result);
         getDetailUrl(page);
 //        nextPage(page);
     }
